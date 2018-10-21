@@ -276,7 +276,7 @@
         <repository>
             <id>bintray-kptfh-feign-reactive</id>
             <name>kptfh-feign-reactive</name>
-            <url>https://api.bintray.com/maven/kptfh/json-reactive/???/;publish=1</url>
+            <url>https://api.bintray.com/maven/kptfh/json-reactive/json/;publish=1</url>
         </repository>
     </distributionManagement>
 
