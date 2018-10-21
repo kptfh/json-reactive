@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -41,6 +42,31 @@ public class ReactorObjectReaderTest {
 				new TestEntity(7, "testName7")};
 
 		Publisher<ByteBuffer> byteBuffers = stringBuffer(objectMapper.writeValueAsString(testEntities));
+
+		Flux<TestEntity> testEntityRed = reader.readElements(byteBuffers, objectMapper.readerFor(TestEntity.class));
+
+		StepVerifier.create(testEntityRed)
+				.expectNextMatches(testEntity -> testEntity.equals(testEntities[0]))
+				.expectNextMatches(testEntity -> testEntity.equals(testEntities[1]))
+				.expectNextMatches(testEntity -> testEntity.equals(testEntities[2]))
+				.verifyComplete();
+	}
+
+	@Test
+	public void shouldReadSequence() {
+		TestEntity[] testEntities = new TestEntity[]{
+				new TestEntity(1, "testName1"),
+				new TestEntity(3, "testName3"),
+				new TestEntity(7, "testName7")};
+
+		Publisher<ByteBuffer> byteBuffers = Flux.fromArray(testEntities)
+				.flatMap(testEntity -> {
+					try {
+						return stringBuffer(objectMapper.writeValueAsString(testEntity));
+					} catch (JsonProcessingException e) {
+						throw new UncheckedIOException(e);
+					}
+				}) ;
 
 		Flux<TestEntity> testEntityRed = reader.readElements(byteBuffers, objectMapper.readerFor(TestEntity.class));
 
