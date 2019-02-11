@@ -43,21 +43,21 @@ public class ReactorObjectReader {
 	}
 
 	private <T> Flux<T> readImpl(Publisher<ByteBuffer> input, NonBlockingObjectReader reader) {
-		return Flux.from(input).flatMap(
-				byteBuffer -> {
-					try {
-						return Flux.fromIterable(reader.readObjects(byteBuffer));
-					} catch (IOException e) {
-						return Flux.error(e);
-					}
-				},
-				Flux::error,
-				() -> {
+		return Flux.concat(
+				Flux.from(input).concatMap(
+						byteBuffer -> {
+							try {
+								return Flux.fromIterable(reader.readObjects(byteBuffer));
+							} catch (IOException e) {
+								return Flux.error(e);
+							}
+						}),
+				Flux.defer(() -> {
 					try {
 						return Flux.fromIterable(reader.endOfInput());
 					} catch (IOException e) {
 						return Flux.error(e);
 					}
-				});
+				}));
 	}
 }
