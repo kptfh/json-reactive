@@ -48,6 +48,23 @@ public class Rx2ObjectReaderTest {
 	}
 
 	@Test
+	public void shouldReadSequence() {
+		TestEntity[] testEntities = new TestEntity[]{
+				new TestEntity(1, "testName1"),
+				new TestEntity(3, "testName3"),
+				new TestEntity(7, "testName7")};
+
+		Publisher<ByteBuffer> byteBuffers = Flowable.fromArray(testEntities)
+				.flatMap(testEntity -> stringBuffer(objectMapper.writeValueAsString(testEntity)));
+
+		Flowable<TestEntity> testEntityRed = reader.readElements(byteBuffers,
+				objectMapper.readerFor(TestEntity.class));
+
+		testEntityRed.test()
+				.assertResult(testEntities);
+	}
+
+	@Test
 	public void shouldReadElementsAsArray() throws JsonProcessingException {
 		TestEntity[] testEntities = new TestEntity[]{
 				new TestEntity(1, "testName1"),

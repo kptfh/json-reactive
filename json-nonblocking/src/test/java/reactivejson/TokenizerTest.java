@@ -219,6 +219,19 @@ public class TokenizerTest {
 		}
 	}
 
+	@Test
+	public void shouldReadSequence() {
+		testTokenize(
+				asList("{\"foo\": \"foofoo1\", \"bar\": \"barbar1\"}", "{\"foo\": \"foofoo2\", \"bar\": \"barbar2\"}"),
+				asList("{\"foo\": \"foofoo1\", \"bar\": \"barbar1\"}", "{\"foo\": \"foofoo2\", \"bar\": \"barbar2\"}"),
+				true);
+
+		testTokenize(
+				asList("{\"foo\": \"foofoo1\", \"bar\": \"barbar1\"}", "{\"foo\": \"foofoo2\", \"bar\": \"barbar2\"}"),
+				asList("{\"foo\": \"foofoo1\", \"bar\": \"barbar1\"}", "{\"foo\": \"foofoo2\", \"bar\": \"barbar2\"}"),
+				false);
+	}
+
 	private ByteBuffer stringBuffer(String value) {
 		return ByteBuffer.wrap(value.getBytes(StandardCharsets.UTF_8));
 	}
